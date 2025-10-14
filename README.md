@@ -1,12 +1,22 @@
 # Buen Font Installer
 
-A simple macOS app to install and organize font files.
+A sleek macOS menu bar app to install and organize font files. Built on top of the [Font File Separatornator](https://github.com/johnchourajr/font-file-separatornator) concept.
+
+## Download
+
+**[Download Latest Release](https://github.com/johnchourajr/buen-fonts-app/releases/latest)**
+
+1. Download the `.dmg` file
+2. Open it and drag the app to your Applications folder
+3. Launch from Applications or click the menu bar icon
 
 ## Features
 
-- **Drag & Drop Interface**: Simply drag font files or folders into the app
-- **Auto Install Mode**: Install fonts directly to `~/Library/Fonts/` with automatic deduplication
+- **Drag & Drop Interface**: Drag font files or folders anywhere on the window
+- **Auto Install Mode**: Install fonts to a custom location (default: `~/Library/Fonts/`) with automatic deduplication
 - **Organize Mode**: Separate fonts into organized folders by type (TTF, OTF, WOFF, WOFF2)
+- **Menu Bar App**: Lives in your menu bar for quick access
+- **Customizable Settings**: Control install location and app visibility
 
 ## Usage
 
@@ -63,14 +73,39 @@ Requires `fswatch` (install with `brew install fswatch` for faster watching, or 
 swift run
 ```
 
+## Distribution (For Developers)
+
+### Create a Release DMG
+
+```bash
+# Build and create DMG installer
+./create-dmg.sh
+```
+
+This creates a `.dmg` file that users can download and install by dragging to Applications.
+
+### Publishing a Release
+
+1. Update version in `Info.plist`
+2. Run `./create-dmg.sh`
+3. Create a new release on GitHub
+4. Upload the `.dmg` file
+5. Users download and install
+
+### Optional: Code Signing & Notarization
+
+For wider distribution without Gatekeeper warnings:
+1. Get an Apple Developer account ($99/year)
+2. Sign the app with your Developer ID certificate
+3. Notarize with Apple
+4. See [Apple's notarization guide](https://developer.apple.com/documentation/security/notarizing_macos_software_before_distribution)
+
 ## Customizing the Icon
 
-The app currently has a placeholder icon (blue gradient with "Aa"). To customize it:
-
-1. Replace the PNG files in `Sources/Resources/Assets.xcassets/AppIcon.appiconset/`
-2. Rebuild the app with `./build-app.sh`
-
-Or use any icon design tool to create a new iconset and replace the entire folder.
+1. Replace `icon.png` with your design (1024x1024 recommended)
+2. Open `Package.swift` in Xcode
+3. Drag your icon to all AppIcon slots in the asset catalog
+4. Rebuild with `./build-app.sh`
 
 ## Requirements
 
@@ -79,7 +114,7 @@ Or use any icon design tool to create a new iconset and replace the entire folde
 
 ## License
 
-MIT
+MIT - see LICENSE file
 
 ## Credits
 

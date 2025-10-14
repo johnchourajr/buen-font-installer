@@ -11,6 +11,9 @@ DerivedData/
 # App bundles
 *.app
 .build/
+*.dmg
+!dmg-background.png
+AppIcon.icns
 
 # Test fonts
 *.ttf
@@ -21,4 +24,7 @@ all TTFs/
 all OTFs/
 all WOFF2s/
 all WOFFs/
+
+# Source icon (keep generated icons in Assets.xcassets)
+/icon.png
 

@@ -1,0 +1,43 @@
+name: Create Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Build App
+      run: |
+        chmod +x build-app.sh create-dmg.sh
+        ./build-app.sh
+        ./create-dmg.sh
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          *.dmg
+        body: |
+          ## Buen Font Installer
+
+          Download the `.dmg` file below, open it, and drag the app to your Applications folder.
+
+          ### Features
+          - Install fonts with automatic deduplication
+          - Organize fonts into separate folders
+          - Menu bar app for quick access
+          - Customizable settings
+
+          ### Requirements
+          - macOS 13.0 or later
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
