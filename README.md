@@ -1,42 +1,81 @@
 # Buen Font Installer
 
-A sleek macOS menu bar app to install and organize font files. Built on top of the [Font File Separatornator](https://github.com/johnchourajr/font-file-separatornator) concept.
+A sleek macOS menu bar app for installing and organizing font files with a single drag and drop.
+
+Built on the concept of [Font File Separatornator](https://github.com/johnchourajr/font-file-separatornator).
+
+---
 
 ## Download
 
-**[Download Latest Release](https://github.com/johnchourajr/buen-fonts-app/releases/latest)**
+**[⬇️ Download Latest Release](https://github.com/johnchourajr/buen-fonts-app/releases/latest)**
 
-1. Download the `.dmg` file
-2. Open it and drag the app to your Applications folder
-3. Launch from Applications or click the menu bar icon
+### Installation
+
+1. Download the `Buen Font Installer-v1.0.dmg` file
+2. Open the DMG and drag the app to your Applications folder
+3. Launch from Applications or find it in your menu bar
+
+---
 
 ## Features
 
-- **Drag & Drop Interface**: Drag font files or folders anywhere on the window
-- **Auto Install Mode**: Install fonts to a custom location (default: `~/Library/Fonts/`) with automatic deduplication
-- **Organize Mode**: Separate fonts into organized folders by type (TTF, OTF, WOFF, WOFF2)
-- **Menu Bar App**: Lives in your menu bar for quick access
-- **Customizable Settings**: Control install location and app visibility
+**Simple Drag & Drop**
+Drop font files or folders anywhere on the window - the entire window is your dropzone.
 
-## Usage
+**Two Modes of Operation**
+- **Auto Install**: Installs fonts to your system with automatic duplicate detection
+- **Organize**: Separates fonts into organized folders by type without installing
 
-### Auto Install (Checked)
-When "Auto install" is checked:
-- Drag font files or folders into the drop zone
-- `.ttf` and `.otf` files are automatically installed to `~/Library/Fonts/`
-- Existing fonts are automatically skipped (no duplicates)
-- Web fonts (`.woff`, `.woff2`) are skipped with a notification
+**Menu Bar Access**
+Lives quietly in your menu bar - click to open, right-click for quick actions.
 
-### Organize Mode (Unchecked)
-When "Auto install" is unchecked:
-- Drag font files or folders into the drop zone
-- Fonts are organized into separate folders in the source directory:
-  - `all TTFs/` - All TrueType fonts
-  - `all OTFs/` - All OpenType fonts
-  - `all WOFF2s/` - All WOFF2 web fonts
-  - `all WOFFs/` - All WOFF web fonts
+**Customizable**
+- Choose where fonts get installed
+- Toggle menu bar and dock visibility
+- See what fonts were processed with clear status messages
 
-## Building
+---
+
+## How to Use
+
+### Installing Fonts
+
+1. Check "Auto install" (enabled by default)
+2. Drag font files or folders onto the window
+3. `.ttf` and `.otf` files are instantly installed to your fonts folder
+4. Duplicates are automatically skipped
+
+**Default install location:** `~/Library/Fonts/`  
+**Change it:** Click the settings gear → Choose install location
+
+### Organizing Fonts
+
+1. Uncheck "Auto install"
+2. Drag font files or folders onto the window
+3. Fonts are separated into organized folders:
+   - `all TTFs/` - TrueType fonts
+   - `all OTFs/` - OpenType fonts
+   - `all WOFF2s/` - Web fonts (WOFF2)
+   - `all WOFFs/` - Web fonts (WOFF)
+
+The organized folders are created in the same directory as your source files.
+
+---
+
+## Requirements
+
+- macOS 13.0 or later
+
+## Support
+
+Found a bug or have a feature request? [Open an issue](https://github.com/johnchourajr/buen-fonts-app/issues) on GitHub.
+
+---
+
+## For Developers
+
+### Building from Source
 
 This is a Swift Package Manager project. You can build and run it in multiple ways:
 
@@ -73,9 +112,9 @@ Requires `fswatch` (install with `brew install fswatch` for faster watching, or 
 swift run
 ```
 
-## Distribution (For Developers)
+### Distribution
 
-### Create a Release DMG
+**Create a Release DMG**
 
 ```bash
 # Build and create DMG installer
@@ -84,7 +123,7 @@ swift run
 
 This creates a `.dmg` file that users can download and install by dragging to Applications.
 
-### Publishing a Release
+**Publishing a Release**
 
 1. Update version in `Info.plist`
 2. Run `./create-dmg.sh`
@@ -92,7 +131,7 @@ This creates a `.dmg` file that users can download and install by dragging to Ap
 4. Upload the `.dmg` file
 5. Users download and install
 
-### Optional: Code Signing & Notarization
+**Optional: Code Signing & Notarization**
 
 For wider distribution without Gatekeeper warnings:
 1. Get an Apple Developer account ($99/year)
@@ -100,17 +139,16 @@ For wider distribution without Gatekeeper warnings:
 3. Notarize with Apple
 4. See [Apple's notarization guide](https://developer.apple.com/documentation/security/notarizing_macos_software_before_distribution)
 
-## Customizing the Icon
+### Customizing the Icon
 
 1. Replace `icon.png` with your design (1024x1024 recommended)
 2. Open `Package.swift` in Xcode
 3. Drag your icon to all AppIcon slots in the asset catalog
 4. Rebuild with `./build-app.sh`
 
-## Requirements
-
+**Build Requirements**
 - macOS 13.0 or later
-- Xcode 15.0 or later (for building)
+- Xcode 15.0 or later
 
 ## License
 
