@@ -26,6 +26,12 @@
     <string>NSApplication</string>
     <key>NSHighResolutionCapable</key>
     <true/>
+    <key>NSDesktopFolderUsageDescription</key>
+    <string>Buen Font Installer needs access to read font files you want to install or organize.</string>
+    <key>NSDocumentsFolderUsageDescription</key>
+    <string>Buen Font Installer needs access to read font files you want to install or organize.</string>
+    <key>NSDownloadsFolderUsageDescription</key>
+    <string>Buen Font Installer needs access to read font files you want to install or organize.</string>
 </dict>
 </plist>
 
