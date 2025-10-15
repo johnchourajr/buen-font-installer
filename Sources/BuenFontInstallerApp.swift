@@ -14,13 +14,14 @@ struct BuenFontInstallerApp: App {
                     ToolbarItem(placement: .principal) {
                         Text("BUEN FONT INSTALLER")
                             .font(.system(size: 9, weight: .medium, design: .monospaced))
-                            .foregroundColor(.secondary.opacity(0.6))
+                            .foregroundColor(.secondary)
                             .tracking(1.2)
                     }
                 }
         }
         .windowStyle(.hiddenTitleBar)
-        .windowResizability(.contentSize)
+        .windowResizability(.contentMinSize)
+        .defaultSize(width: 500, height: 500)
         .commands {
             CommandGroup(replacing: .appInfo) {
                 Button("About Buen Font Installer") {
@@ -99,6 +100,7 @@ struct WindowAccessor: NSViewRepresentable {
             if let window = view.window {
                 window.isOpaque = false
                 window.backgroundColor = .clear
+                window.appearance = NSAppearance(named: .darkAqua)
             }
         }
         return view
@@ -108,6 +110,7 @@ struct WindowAccessor: NSViewRepresentable {
         if let window = nsView.window {
             window.isOpaque = false
             window.backgroundColor = .clear
+            window.appearance = NSAppearance(named: .darkAqua)
         }
     }
 }

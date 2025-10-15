@@ -14,12 +14,30 @@ struct ContentView: View {
       // Main installer view
       if !showingSettings {
         mainView
-          .frame(minHeight: 500)
+          .frame(minWidth: 400, minHeight: 400)
+          .zIndex(2)
           .transition(
             .asymmetric(
               insertion: .opacity.combined(with: .scale(scale: 0.95)),
               removal: .opacity.combined(with: .scale(scale: 1.05))
             ))
+      }
+
+      // Darkening overlay when settings are shown
+      if showingSettings {
+        Color.black.opacity(0.3)
+          .ignoresSafeArea()
+          .transition(.opacity)
+      }
+
+      if isDropTargeted {
+        Color.black.opacity(0.6)
+          .ignoresSafeArea()
+          .transition(.opacity)
+
+        Color.accentColor.opacity(0.3)
+          .ignoresSafeArea()
+          .transition(.opacity)
       }
 
       // Settings view
@@ -32,7 +50,7 @@ struct ContentView: View {
             }
           }
         )
-        .frame(minHeight: 500)
+        .frame(minWidth: 400, minHeight: 400)
         .transition(
           .asymmetric(
             insertion: .opacity.combined(with: .scale(scale: 0.95)),
@@ -40,7 +58,7 @@ struct ContentView: View {
           ))
       }
     }
-    .frame(width: 500)
+    .frame(minWidth: 400, minHeight: 400)
     .background(.ultraThinMaterial)
     .animation(.easeInOut(duration: 0.3), value: showingSettings)
     .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("ShowSettings"))) {
@@ -71,7 +89,7 @@ struct ContentView: View {
           if !statusMessage.isEmpty {
             Text(statusMessage)
               .font(.system(size: 12))
-              .foregroundColor(.secondary)
+              .foregroundColor(.white)
               .multilineTextAlignment(.center)
               .padding(.horizontal)
           }
@@ -86,11 +104,11 @@ struct ContentView: View {
             VStack(spacing: 8) {
               Image(systemName: "arrow.down.doc")
                 .font(.system(size: 32))
-                .foregroundColor(.secondary.opacity(0.3))
+                .foregroundColor(.white.opacity(0.4))
 
               Text("Drop fonts or folder anywhere")
                 .font(.system(size: 13))
-                .foregroundColor(.secondary.opacity(0.5))
+                .foregroundColor(.white.opacity(0.6))
             }
             .padding(.top, 20)
           }
@@ -114,7 +132,7 @@ struct ContentView: View {
           }) {
             Image(systemName: "gear")
               .font(.system(size: 14))
-              .foregroundColor(.secondary.opacity(0.6))
+              .foregroundColor(.white.opacity(0.6))
           }
           .buttonStyle(.plain)
           .help("Settings")
@@ -131,9 +149,29 @@ struct ContentView: View {
         .strokeBorder(
           style: StrokeStyle(lineWidth: 1, dash: [4, 4])
         )
-        .foregroundColor(isDropTargeted ? .accentColor : .white.opacity(0.15))
-        .padding(EdgeInsets(top: 2, leading: 12, bottom: 12, trailing: 12))
+        .foregroundColor(isDropTargeted ? .accentColor : .white.opacity(0.35))
+        .padding(
+          EdgeInsets(
+            top: 2,
+            leading: isDropTargeted ? 8 : 12,
+            bottom: isDropTargeted ? 8 : 12,
+            trailing: isDropTargeted ? 8 : 12
+          )
+        )
+        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isDropTargeted)
         .allowsHitTesting(false)
+    }
+  }
+
+  func showTemporaryMessage(_ message: String, duration: TimeInterval = 3.0) {
+    statusMessage = message
+    Task {
+      try? await Task.sleep(nanoseconds: UInt64(duration * 1_000_000_000))
+      await MainActor.run {
+        if statusMessage == message {
+          statusMessage = ""
+        }
+      }
     }
   }
 
@@ -163,8 +201,8 @@ struct ContentView: View {
 
       guard !allFontFiles.isEmpty else {
         await MainActor.run {
-          statusMessage = "No font files found"
           isProcessing = false
+          showTemporaryMessage("No font files found")
         }
         return
       }
@@ -177,8 +215,8 @@ struct ContentView: View {
           await organizeFonts(allFontFiles, sourceDirectory: sourceDir)
         } else {
           await MainActor.run {
-            statusMessage = "Could not determine source directory"
             isProcessing = false
+            showTemporaryMessage("Could not determine source directory")
           }
         }
       }
@@ -270,8 +308,8 @@ struct ContentView: View {
         message += "\nSkipped \(webFonts) web font(s) (.woff/.woff2)"
       }
 
-      statusMessage = message
       isProcessing = false
+      showTemporaryMessage(message, duration: 4.0)
     }
   }
 
@@ -330,8 +368,8 @@ struct ContentView: View {
         message = "No fonts organized"
       }
 
-      statusMessage = message
       isProcessing = false
+      showTemporaryMessage(message, duration: 4.0)
     }
   }
 }

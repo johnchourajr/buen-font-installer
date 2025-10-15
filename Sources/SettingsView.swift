@@ -46,11 +46,14 @@ struct SettingsView: View {
               .lineLimit(1)
               .truncationMode(.middle)
               .frame(maxWidth: .infinity, alignment: .leading)
+              .onTapGesture {
+                chooseInstallLocation()
+              }
 
             Button("Choose...") {
               chooseInstallLocation()
             }
-            .buttonStyle(.bordered)
+            .buttonStyle(.borderedProminent)
           }
           .padding(12)
           .background(Color.primary.opacity(0.05))
@@ -83,6 +86,9 @@ struct SettingsView: View {
             VStack(alignment: .leading, spacing: 4) {
               Text("Buen Font Installer")
                 .font(.system(size: 12))
+              Text("Built by John Choura Jr.")
+                .font(.system(size: 11))
+                .foregroundColor(.secondary)
               Text("Version \(settings.appVersion) (Build \(settings.buildNumber))")
                 .font(.system(size: 11))
                 .foregroundColor(.secondary)

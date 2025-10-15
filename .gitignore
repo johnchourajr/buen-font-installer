@@ -28,3 +28,5 @@ all WOFFs/
 # Source icon (keep generated icons in Assets.xcassets)
 /icon.png
 
+# Local Assets
+.assets/
