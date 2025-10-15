@@ -1,16 +1,18 @@
 # Buen Font Installer
 
-A sleek macOS menu bar app for installing and organizing font files with a single drag and drop.
+> Have you ever downloaded a new font family and thought, "I just want to install these TTFs right now without opening Font Book"? Or maybe you're drowning in a pile of mixed font files and just need them organized? Well today is your lucky day. Meet Buen Font Installer, the macOS menu bar app for all your font installing and organizing needs.
 
-Built on the concept of [Font File Separatornator](https://github.com/johnchourajr/font-file-separatornator).
+Buen Font Installer is a macOS menu bar app that lives quietly in your menu bar and lets you drag and drop font files to either install them instantly or organize them into neat folders by type.
 
----
+Built on the my own shell script [Font File Separatornator](https://github.com/johnchourajr/font-file-separatornator).
 
-## Download
+## Usage
 
-**[⬇️ Download Latest Release](https://github.com/johnchourajr/buen-fonts-app/releases/latest)**
+### 1. Download the app
 
-### Installation
+**[Download Latest Release](https://github.com/johnchourajr/buen-fonts-app/releases/latest)**
+
+### 2. Install it
 
 1. Download the `Buen Font Installer-v1.0.dmg` file
 2. Open the DMG and drag the app to your Applications folder
@@ -18,42 +20,20 @@ Built on the concept of [Font File Separatornator](https://github.com/johnchoura
 4. Click "Open" when macOS warns you about an unidentified developer
 5. The app will launch - find it in your menu bar
 
-**Note:** This app is self-signed but not notarized. macOS will show a warning the first time you open it. After allowing it once via right-click → Open, you can launch it normally.
+**Why this extra step?** This app isn't notarized with Apple ($99/year developer fee). You only need to do this once.
 
----
+### 3. Use it
 
-## Features
+**Installing Fonts**
 
-**Simple Drag & Drop**
-Drop font files or folders anywhere on the window - the entire window is your dropzone.
-
-**Two Modes of Operation**
-- **Auto Install**: Installs fonts to your system with automatic duplicate detection
-- **Organize**: Separates fonts into organized folders by type without installing
-
-**Menu Bar Access**
-Lives quietly in your menu bar - click to open, right-click for quick actions.
-
-**Customizable**
-- Choose where fonts get installed
-- Toggle menu bar and dock visibility
-- See what fonts were processed with clear status messages
-
----
-
-## How to Use
-
-### Installing Fonts
-
-1. Check "Auto install" (enabled by default)
+1. Make sure "Auto install" is checked (it's on by default)
 2. Drag font files or folders onto the window
 3. `.ttf` and `.otf` files are instantly installed to your fonts folder
 4. Duplicates are automatically skipped
 
-**Default install location:** `~/Library/Fonts/`
-**Change it:** Click the settings gear → Choose install location
+Default install location is `~/Library/Fonts/`. Want to change it? Click the settings gear and choose your own location.
 
-### Organizing Fonts
+**Organizing Fonts**
 
 1. Uncheck "Auto install"
 2. Drag font files or folders onto the window
@@ -65,11 +45,33 @@ Lives quietly in your menu bar - click to open, right-click for quick actions.
 
 The organized folders are created in the same directory as your source files.
 
----
+### 4. Enjoy your organized fonts
+
+Do as you please with those installed or organized fonts.
+
+Also, you can keep running the organize mode over and over and it'll keep refreshing those same folders without making duplicates. Magic.
+
+## Features
+
+**Simple Drag & Drop**
+Drop font files or folders anywhere on the window - the entire window is your dropzone.
+
+**Two Modes of Operation**
+Auto Install mode installs fonts to your system with automatic duplicate detection. Organize mode separates fonts into organized folders by type without installing.
+
+**Menu Bar Access**
+Lives quietly in your menu bar - click to open, right-click for quick actions.
+
+**Customizable**
+Choose where fonts get installed, toggle menu bar and dock visibility, and see what fonts were processed with clear status messages.
+
+## File Types Supported
+
+Installs `.ttf` and `.otf` files. Organizes `.ttf`, `.otf`, `.woff2`, and `.woff` files into separate folders.
 
 ## Requirements
 
-- macOS 13.0 or later
+macOS 13.0 or later
 
 ## Support
 
@@ -156,9 +158,9 @@ For wider distribution without Gatekeeper warnings:
 
 ## License
 
-MIT - see LICENSE file
+This project is licensed under the MIT License - see the LICENSE file for details.
 
-## Credits
+## About
 
 Built on top of the [Font File Separatornator](https://github.com/johnchourajr/font-file-separatornator) concept.
 
