@@ -14,7 +14,11 @@ Built on the concept of [Font File Separatornator](https://github.com/johnchoura
 
 1. Download the `Buen Font Installer-v1.0.dmg` file
 2. Open the DMG and drag the app to your Applications folder
-3. Launch from Applications or find it in your menu bar
+3. **First launch:** Right-click (or Control-click) the app and select "Open"
+4. Click "Open" when macOS warns you about an unidentified developer
+5. The app will launch - find it in your menu bar
+
+**Note:** This app is self-signed but not notarized. macOS will show a warning the first time you open it. After allowing it once via right-click → Open, you can launch it normally.
 
 ---
 

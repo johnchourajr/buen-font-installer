@@ -33,6 +33,16 @@ cp Sources/Resources/Assets.xcassets/AppIcon.appiconset/*.png /tmp/AppIcon.icons
 iconutil -c icns /tmp/AppIcon.iconset -o "$APP_DIR/Resources/AppIcon.icns" 2>/dev/null
 rm -rf /tmp/AppIcon.iconset
 
+# Ad-hoc code sign the app
+echo "Signing app..."
+codesign --force --deep --sign - "$APP_NAME"
+
+if [ $? -eq 0 ]; then
+    echo "✓ App signed successfully"
+else
+    echo "⚠ Warning: Code signing failed, app may not run on other machines"
+fi
+
 echo "✓ App bundle created: $APP_NAME"
 echo "You can now run it with: open \"$APP_NAME\""
 
