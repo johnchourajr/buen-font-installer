@@ -1,6 +1,6 @@
 # Buen Font Installer
 
-<img width="1831" height="791" alt="Cover" src="https://github.com/user-attachments/assets/b579b289-2784-4a16-9650-d92386e3429c" />
+<img width="1831" height="791" alt="Cover" src="https://github.com/user-attachments/assets/2302d01c-4303-4ee3-b62d-fe66867aa2c7" />
 
 
 > Have you ever downloaded a new font family and thought, "I just want to install these TTFs right now without opening Font Book"? Or maybe you're drowning in a pile of mixed font files and just need them organized? Well today is your lucky day. Meet Buen Font Installer, the macOS menu bar app for all your font installing and organizing needs.
