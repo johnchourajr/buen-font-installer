@@ -44,7 +44,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         if let button = statusItem?.button {
             button.image = NSImage(
-                systemSymbolName: "textformat", accessibilityDescription: "Buen Font Installer")
+                systemSymbolName: "textformat",
+                accessibilityDescription: "Buen Font Installer")
             button.action = #selector(toggleApp)
             button.target = self
             button.sendAction(on: [.leftMouseUp, .rightMouseUp])

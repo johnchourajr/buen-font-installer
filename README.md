@@ -46,7 +46,7 @@ Lives quietly in your menu bar - click to open, right-click for quick actions.
 3. `.ttf` and `.otf` files are instantly installed to your fonts folder
 4. Duplicates are automatically skipped
 
-**Default install location:** `~/Library/Fonts/`  
+**Default install location:** `~/Library/Fonts/`
 **Change it:** Click the settings gear → Choose install location
 
 ### Organizing Fonts
