@@ -15,7 +15,7 @@ Built on the my own shell script [Font File Separatornator](https://github.com/j
 
 ### 1. Download the app
 
-**[Download Latest Release](https://github.com/johnchourajr/buen-fonts-app/releases/latest)**
+**[Download Latest Release](https://github.com/johnchourajr/buen-font-installer/releases/latest)**
 
 ### 2. Install it
 
@@ -85,7 +85,7 @@ macOS 13.0 or later
 
 ## Support
 
-Found a bug or have a feature request? [Open an issue](https://github.com/johnchourajr/buen-fonts-app/issues) on GitHub.
+Found a bug or have a feature request? [Open an issue](https://github.com/johnchourajr/buen-font-installer/issues) on GitHub.
 
 ---
 
