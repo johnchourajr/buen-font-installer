@@ -16,7 +16,6 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Setup code signing
-      if: ${{ secrets.DEVELOPER_ID_CERTIFICATE_BASE64 != '' }}
       env:
         CERTIFICATE_BASE64: ${{ secrets.DEVELOPER_ID_CERTIFICATE_BASE64 }}
         CERTIFICATE_PASSWORD: ${{ secrets.DEVELOPER_ID_CERTIFICATE_PASSWORD }}
@@ -39,7 +38,6 @@ jobs:
         echo "DEVELOPER_ID_CERTIFICATE=$IDENTITY" >> $GITHUB_ENV
 
     - name: Setup notarization credentials
-      if: ${{ secrets.APPLE_ID != '' }}
       env:
         APPLE_ID: ${{ secrets.APPLE_ID }}
         APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
