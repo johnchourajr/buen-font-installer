@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" xmlns:dc="http://purl.org/dc/elements/1.1/">
+    <channel>
+        <title>Buen Font Installer</title>
+        <link>https://raw.githubusercontent.com/johnchourajr/buen-fonts-app/main/appcast.xml</link>
+        <description>Font installer and organizer for macOS</description>
+        <language>en</language>
+
+        <!--
+        ===========================================
+        HOW TO UPDATE THIS FILE FOR NEW RELEASES
+        ===========================================
+
+        1. Build and notarize your new version
+        2. Upload the DMG to GitHub releases
+        3. Get the download URL from the release
+        4. Calculate file size: ls -l "Buen Font Installer-vX.X.dmg" | awk '{print $5}'
+        5. Add a new <item> below with updated info
+        6. Commit and push this file to the main branch
+
+        IMPORTANT: Keep this file at the same URL (main branch)
+        Sparkle checks this URL for updates on app launch
+
+        ===========================================
+        -->
+
+        <!-- Example: Version 1.1 (REMOVE THIS COMMENT BLOCK WHEN YOU ADD YOUR FIRST REAL UPDATE) -->
+        <!--
+        <item>
+            <title>Version 1.1</title>
+            <link>https://github.com/johnchourajr/buen-fonts-app/releases/tag/v1.1</link>
+            <sparkle:version>1.1</sparkle:version>
+            <sparkle:shortVersionString>1.1</sparkle:shortVersionString>
+            <description><![CDATA[
+                <h2>What's New in Version 1.1</h2>
+                <ul>
+                    <li>Added automatic update checking</li>
+                    <li>Improved font installation speed</li>
+                    <li>Fixed duplicate detection bug</li>
+                </ul>
+            ]]></description>
+            <pubDate>Mon, 15 Jan 2025 12:00:00 +0000</pubDate>
+            <enclosure
+                url="https://github.com/johnchourajr/buen-fonts-app/releases/download/v1.1/Buen.Font.Installer-v1.1.dmg"
+                sparkle:version="1.1"
+                sparkle:shortVersionString="1.1"
+                length="12345678"
+                type="application/octet-stream"
+            />
+            <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
+        </item>
+        -->
+
+        <!-- Current version 0.0.1-beta - baseline with auto-updates -->
+        <item>
+            <title>Version 0.0.1 Beta</title>
+            <link>https://github.com/johnchourajr/buen-fonts-app/releases/tag/v0.0.1-beta</link>
+            <sparkle:version>0.0.1</sparkle:version>
+            <sparkle:shortVersionString>0.0.1</sparkle:shortVersionString>
+            <description><![CDATA[
+                <h2>Beta Release</h2>
+                <ul>
+                    <li>Install fonts with drag and drop</li>
+                    <li>Organize fonts into separate folders</li>
+                    <li>Menu bar app for quick access</li>
+                    <li>Automatic update notifications</li>
+                    <li>Customizable settings</li>
+                    <li>Code signed and notarized</li>
+                </ul>
+            ]]></description>
+            <pubDate>Thu, 17 Oct 2025 16:15:00 +0000</pubDate>
+            <enclosure 
+                url="https://github.com/johnchourajr/buen-fonts-app/releases/download/v0.0.1-beta/Buen.Font.Installer-v0.0.1.dmg"
+                sparkle:version="0.0.1"
+                sparkle:shortVersionString="0.0.1"
+                length="5000000"
+                type="application/octet-stream"
+            />
+            <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
+        </item>
+
+    </channel>
+</rss>
+

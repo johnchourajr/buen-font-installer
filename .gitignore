@@ -7,6 +7,8 @@ xcuserdata/
 DerivedData/
 .swiftpm/
 *.xcworkspace
+.certs/
+*.env.secrets
 
 # App bundles
 *.app
@@ -30,3 +32,4 @@ all WOFFs/
 
 # Local Assets
 .assets/
+.docs/

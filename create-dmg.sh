@@ -1,11 +1,13 @@
 #!/bin/bash
 
 # Create a DMG installer for Buen Font Installer
+set -e
+
 APP_NAME="Buen Font Installer"
-VERSION="1.0"
-DMG_NAME="${APP_NAME}-v${VERSION}.dmg"
-VOLUME_NAME="${APP_NAME}"
 BACKGROUND_IMG="dmg-background.png"
+SIGNING_IDENTITY="${DEVELOPER_ID_CERTIFICATE:-}"
+APPLE_ID="${APPLE_ID:-}"
+KEYCHAIN_PROFILE="${NOTARIZATION_KEYCHAIN_PROFILE:-notarytool-password}"
 
 echo "Creating DMG installer..."
 
@@ -14,6 +16,13 @@ if [ ! -d "${APP_NAME}.app" ]; then
     echo "Building app first..."
     ./build-app.sh
 fi
+
+# Read version from Info.plist
+VERSION=$(defaults read "$(pwd)/${APP_NAME}.app/Contents/Info.plist" CFBundleShortVersionString 2>/dev/null || echo "1.0")
+DMG_NAME="${APP_NAME}-v${VERSION}.dmg"
+VOLUME_NAME="${APP_NAME}"
+
+echo "Version: $VERSION"
 
 # Create a temporary directory for DMG contents
 TMP_DIR=$(mktemp -d)
@@ -80,16 +89,55 @@ hdiutil detach "$MOUNT_DIR"
 rm -f "${DMG_NAME}"
 hdiutil convert "$TMP_DMG" -format UDZO -o "${DMG_NAME}"
 
-# Clean up
+# Clean up temporary files
 rm -f "$TMP_DMG"
 rm -rf "$TMP_DIR"
 
 echo "✓ DMG created: ${DMG_NAME}"
+
+# Sign the DMG if we have a signing identity
+if [ -n "$SIGNING_IDENTITY" ] && [ "$SIGNING_IDENTITY" != "-" ]; then
+    echo ""
+    echo "🔐 Signing DMG..."
+    codesign --sign "$SIGNING_IDENTITY" --timestamp "${DMG_NAME}"
+
+    if [ $? -eq 0 ]; then
+        echo "✓ DMG signed successfully"
+
+        # Notarize the DMG if Apple ID is provided
+        if [ -n "$APPLE_ID" ]; then
+            echo ""
+            echo "📤 Notarizing DMG..."
+            echo "   This may take a few minutes..."
+
+            xcrun notarytool submit "${DMG_NAME}" \
+                --keychain-profile "$KEYCHAIN_PROFILE" \
+                --wait
+
+            if [ $? -eq 0 ]; then
+                echo "✓ DMG notarization successful!"
+
+                # Staple the notarization ticket
+                echo "📎 Stapling notarization ticket..."
+                xcrun stapler staple "${DMG_NAME}"
+
+                if [ $? -eq 0 ]; then
+                    echo "✓ DMG is fully notarized and stapled!"
+                    echo ""
+                    echo "🎉 Distribution-ready DMG created!"
+                fi
+            else
+                echo "⚠ DMG notarization failed (but DMG is signed)"
+            fi
+        fi
+    fi
+fi
+
 echo ""
 echo "To distribute:"
 echo "1. Upload ${DMG_NAME} to GitHub releases"
-echo "2. Share the download link"
-echo "3. Users drag the app to Applications folder"
+echo "2. Update appcast.xml with new version info"
+echo "3. Share the download link"
 
 if [ ! -f "$BACKGROUND_IMG" ]; then
     echo ""

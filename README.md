@@ -19,13 +19,12 @@ Built on the my own shell script [Font File Separatornator](https://github.com/j
 
 ### 2. Install it
 
-1. Download the `Buen Font Installer-v1.0.dmg` file
+1. Download the latest `Buen Font Installer-v*.dmg` file
 2. Open the DMG and drag the app to your Applications folder
-3. **First launch:** Right-click (or Control-click) the app and select "Open"
-4. Click "Open" when macOS warns you about an unidentified developer
-5. The app will launch - find it in your menu bar
+3. Launch from Applications
+4. The app will appear in your menu bar
 
-**Why this extra step?** This app isn't notarized with Apple ($99/year developer fee). You only need to do this once.
+**No Gatekeeper warnings!** This app is code-signed and notarized with Apple.
 
 ### 3. Use it
 
@@ -67,8 +66,14 @@ Auto Install mode installs fonts to your system with automatic duplicate detecti
 **Menu Bar Access**
 Lives quietly in your menu bar - click to open, right-click for quick actions.
 
+**Automatic Updates**
+Get notified when new versions are available. Download and install updates with one click - no need to manually check.
+
 **Customizable**
 Choose where fonts get installed, toggle menu bar and dock visibility, and see what fonts were processed with clear status messages.
+
+**Code Signed & Notarized**
+Fully signed and notarized with Apple for security and trust.
 
 ## File Types Supported
 
@@ -125,30 +130,108 @@ swift run
 
 ### Distribution
 
-**Create a Release DMG**
+This project includes full code signing and notarization support with Sparkle auto-updates.
 
+#### Setup Required (One-Time)
+
+**1. Export Your Developer ID Certificate**
+
+From Keychain Access:
+1. Find your "Developer ID Application" certificate
+2. Right-click → Export → Save as `.p12` file
+3. Set a password when exporting
+
+**2. Create App-Specific Password**
+
+1. Go to [appleid.apple.com](https://appleid.apple.com)
+2. Sign in and go to Security
+3. Generate an app-specific password
+4. Save it securely
+
+**3. Add GitHub Secrets**
+
+Go to your repo's Settings → Secrets → Actions and add:
+
+- `DEVELOPER_ID_CERTIFICATE_BASE64`: Your certificate in base64
+  ```bash
+  base64 -i certificate.p12 | pbcopy
+  ```
+- `DEVELOPER_ID_CERTIFICATE_PASSWORD`: The password you set when exporting
+- `KEYCHAIN_PASSWORD`: Any secure password (for temporary keychain)
+- `APPLE_ID`: Your Apple ID email
+- `APPLE_TEAM_ID`: Your 10-character Team ID from [developer.apple.com/account](https://developer.apple.com/account)
+- `APPLE_APP_PASSWORD`: The app-specific password you generated
+
+#### Local Development
+
+**Build without signing (for testing):**
 ```bash
-# Build and create DMG installer
+./build-app.sh
+open "Buen Font Installer.app"
+```
+
+**Build with signing:**
+```bash
+export DEVELOPER_ID_CERTIFICATE="Developer ID Application: Your Name (TEAMID)"
+./build-app.sh
+```
+
+**Notarize the app:**
+```bash
+export APPLE_ID="your@email.com"
+export APPLE_TEAM_ID="ABC123XYZ"
+./notarize.sh
+```
+
+**Create a distribution DMG:**
+```bash
+# With signing and notarization
+export DEVELOPER_ID_CERTIFICATE="Developer ID Application: Your Name (TEAMID)"
+export APPLE_ID="your@email.com"
 ./create-dmg.sh
 ```
 
-This creates a `.dmg` file that users can download and install by dragging to Applications.
+#### Publishing a Release
 
-**Publishing a Release**
+1. **Update version** in `Info.plist`:
+   ```xml
+   <key>CFBundleShortVersionString</key>
+   <string>1.1</string>
+   ```
 
-1. Update version in `Info.plist`
-2. Run `./create-dmg.sh`
-3. Create a new release on GitHub
-4. Upload the `.dmg` file
-5. Users download and install
+2. **Commit and tag**:
+   ```bash
+   git add Info.plist
+   git commit -m "Bump version to 1.1"
+   git tag v1.1
+   git push origin main --tags
+   ```
 
-**Optional: Code Signing & Notarization**
+3. **GitHub Actions automatically**:
+   - Builds the app
+   - Signs with your Developer ID
+   - Notarizes with Apple
+   - Creates a DMG
+   - Uploads to GitHub Releases
 
-For wider distribution without Gatekeeper warnings:
-1. Get an Apple Developer account ($99/year)
-2. Sign the app with your Developer ID certificate
-3. Notarize with Apple
-4. See [Apple's notarization guide](https://developer.apple.com/documentation/security/notarizing_macos_software_before_distribution)
+4. **Update appcast.xml**:
+   - Download the released DMG
+   - Get file size: `ls -l "Buen Font Installer-v1.1.dmg" | awk '{print $5}'`
+   - Follow instructions in `APPCAST_UPDATE_GUIDE.md`
+   - Add new version entry to `appcast.xml`
+   - Commit and push
+
+5. **Users automatically get notified** of the update on their next app launch!
+
+#### Sparkle Auto-Update System
+
+The app uses Sparkle for automatic updates:
+- Checks `appcast.xml` on launch (once per day)
+- Shows update notification when available
+- Users can click "Install Update" to auto-download and install
+- Menu bar includes "Check for Updates..." option
+
+See `APPCAST_UPDATE_GUIDE.md` for details on maintaining the appcast file.
 
 ### Customizing the Icon
 

@@ -4,6 +4,7 @@ import SwiftUI
 @main
 struct BuenFontInstallerApp: App {
     @StateObject private var settings = AppSettings()
+    @StateObject private var sparkleUpdater = SparkleUpdaterController()
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
     var body: some Scene {
@@ -27,6 +28,10 @@ struct BuenFontInstallerApp: App {
                 Button("About Buen Font Installer") {
                     NSApp.orderFrontStandardAboutPanel()
                 }
+            }
+
+            CommandGroup(after: .appInfo) {
+                CheckForUpdatesView(updater: sparkleUpdater)
             }
         }
     }
@@ -60,6 +65,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         menu.addItem(
             NSMenuItem(title: "Settings", action: #selector(openSettings), keyEquivalent: ","))
         menu.addItem(NSMenuItem.separator())
+        menu.addItem(
+            NSMenuItem(
+                title: "Check for Updates...", action: #selector(checkForUpdates), keyEquivalent: ""
+            ))
+        menu.addItem(NSMenuItem.separator())
         menu.addItem(NSMenuItem(title: "Quit", action: #selector(quitApp), keyEquivalent: "q"))
 
         statusItem?.menu = menu
@@ -88,8 +98,29 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
+    @objc func checkForUpdates() {
+        NotificationCenter.default.post(name: NSNotification.Name("CheckForUpdates"), object: nil)
+    }
+
     @objc func quitApp() {
         NSApp.terminate(nil)
+    }
+}
+
+// SwiftUI view for "Check for Updates" menu item
+struct CheckForUpdatesView: View {
+    @ObservedObject var updater: SparkleUpdaterController
+
+    var body: some View {
+        Button("Check for Updates...") {
+            updater.checkForUpdates()
+        }
+        .disabled(!updater.canCheckForUpdates)
+        .onReceive(
+            NotificationCenter.default.publisher(for: NSNotification.Name("CheckForUpdates"))
+        ) { _ in
+            updater.checkForUpdates()
+        }
     }
 }
 

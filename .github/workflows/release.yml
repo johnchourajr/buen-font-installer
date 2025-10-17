@@ -15,6 +15,44 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    - name: Setup code signing
+      if: ${{ secrets.DEVELOPER_ID_CERTIFICATE_BASE64 != '' }}
+      env:
+        CERTIFICATE_BASE64: ${{ secrets.DEVELOPER_ID_CERTIFICATE_BASE64 }}
+        CERTIFICATE_PASSWORD: ${{ secrets.DEVELOPER_ID_CERTIFICATE_PASSWORD }}
+        KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+      run: |
+        # Create temporary keychain
+        KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+        security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+        security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
+        security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+
+        # Import certificate
+        CERTIFICATE_PATH=$RUNNER_TEMP/certificate.p12
+        echo -n "$CERTIFICATE_BASE64" | base64 --decode -o $CERTIFICATE_PATH
+        security import $CERTIFICATE_PATH -P "$CERTIFICATE_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+        security list-keychain -d user -s $KEYCHAIN_PATH
+
+        # Get certificate identity
+        IDENTITY=$(security find-identity -v -p codesigning $KEYCHAIN_PATH | grep "Developer ID Application" | head -1 | grep -o '"[^"]*"' | tr -d '"')
+        echo "DEVELOPER_ID_CERTIFICATE=$IDENTITY" >> $GITHUB_ENV
+
+    - name: Setup notarization credentials
+      if: ${{ secrets.APPLE_ID != '' }}
+      env:
+        APPLE_ID: ${{ secrets.APPLE_ID }}
+        APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        APPLE_APP_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }}
+      run: |
+        # Store notarization credentials
+        xcrun notarytool store-credentials "notarytool-password" \
+          --apple-id "$APPLE_ID" \
+          --team-id "$APPLE_TEAM_ID" \
+          --password "$APPLE_APP_PASSWORD"
+
+        echo "APPLE_ID=$APPLE_ID" >> $GITHUB_ENV
+
     - name: Build App
       run: |
         chmod +x build-app.sh create-dmg.sh
@@ -29,16 +67,28 @@ jobs:
         body: |
           ## Buen Font Installer
 
-          Download the `.dmg` file below, open it, and drag the app to your Applications folder.
+          **Download the DMG file below to install.**
+
+          ### What's New
+          See the release notes below for changes in this version.
 
           ### Features
           - Install fonts with automatic deduplication
           - Organize fonts into separate folders
           - Menu bar app for quick access
+          - Automatic update notifications
           - Customizable settings
+
+          ### Installation
+          1. Download the `.dmg` file
+          2. Open it and drag the app to your Applications folder
+          3. Launch from Applications
 
           ### Requirements
           - macOS 13.0 or later
+
+          ### Notes
+          This app is code-signed and notarized with Apple. No Gatekeeper warnings!
         draft: false
         prerelease: false
       env:
