@@ -21,10 +21,11 @@ Built on the my own shell script [Font File Separatornator](https://github.com/j
 
 1. Download the latest `Buen Font Installer-v*.dmg` file
 2. Open the DMG and drag the app to your Applications folder
-3. Launch from Applications
-4. The app will appear in your menu bar
+3. **First launch**: Right-click the app → "Open" → "Open" to bypass Gatekeeper
+4. After first launch, you can open the app normally
+5. The app will appear in your menu bar
 
-**No Gatekeeper warnings!** This app is code-signed and notarized with Apple.
+**Security Note:** This app is **code-signed** with Apple Developer ID for security. Due to ongoing issues with Apple's notarization service, it's currently not notarized - you'll see a Gatekeeper warning on first launch. Just right-click → Open to proceed safely.
 
 ### 3. Use it
 
@@ -72,8 +73,8 @@ Get notified when new versions are available. Download and install updates with 
 **Customizable**
 Choose where fonts get installed, toggle menu bar and dock visibility, and see what fonts were processed with clear status messages.
 
-**Code Signed & Notarized**
-Fully signed and notarized with Apple for security and trust.
+**Code Signed with Apple**
+Signed with Apple Developer ID certificate for security and trust.
 
 ## File Types Supported
 

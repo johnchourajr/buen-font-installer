@@ -56,6 +56,9 @@ jobs:
       run: |
         chmod +x build-app.sh create-dmg.sh
         ./build-app.sh
+        # Skip notarization for now due to Apple service issues
+        # Will be re-enabled once Apple's notarization service is stable
+        unset APPLE_ID
         ./create-dmg.sh
 
     - name: Create Release
@@ -81,13 +84,16 @@ jobs:
           ### Installation
           1. Download the `.dmg` file
           2. Open it and drag the app to your Applications folder
-          3. Launch from Applications
+          3. **First launch**: Right-click the app → "Open" → "Open" to bypass Gatekeeper
+          4. After first launch, you can open normally
 
           ### Requirements
           - macOS 13.0 or later
 
           ### Notes
-          This app is code-signed and notarized with Apple. No Gatekeeper warnings!
+          This app is **code-signed** with Apple Developer ID for security.
+
+          ⚠️ **Notarization Note**: Due to ongoing issues with Apple's notarization service (6-day outage Oct 8-14, 2025), this release is signed but not notarized. The app is secure and safe to use. You'll see a Gatekeeper warning on first launch - just right-click → Open to proceed. We'll enable notarization once Apple's service is stable.
         draft: false
         prerelease: false
       env:
