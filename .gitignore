@@ -33,3 +33,5 @@ all WOFFs/
 # Local Assets
 .assets/
 .docs/
+.scripts/
+.actrc

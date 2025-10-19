@@ -107,27 +107,83 @@ if [ -n "$SIGNING_IDENTITY" ] && [ "$SIGNING_IDENTITY" != "-" ]; then
         # Notarize the DMG if Apple ID is provided
         if [ -n "$APPLE_ID" ]; then
             echo ""
-            echo "📤 Notarizing DMG..."
-            echo "   This may take a few minutes..."
+            echo "📤 Submitting DMG for notarization..."
+            echo ""
 
-            xcrun notarytool submit "${DMG_NAME}" \
+            # Submit WITHOUT --wait to avoid hanging
+            SUBMIT_OUTPUT=$(xcrun notarytool submit "${DMG_NAME}" \
                 --keychain-profile "$KEYCHAIN_PROFILE" \
-                --wait
+                2>&1)
 
-            if [ $? -eq 0 ]; then
-                echo "✓ DMG notarization successful!"
+            SUBMIT_EXIT=$?
 
-                # Staple the notarization ticket
-                echo "📎 Stapling notarization ticket..."
-                xcrun stapler staple "${DMG_NAME}"
+            if [ $SUBMIT_EXIT -eq 0 ]; then
+                # Extract submission ID
+                SUBMISSION_ID=$(echo "$SUBMIT_OUTPUT" | grep -o 'id: [a-f0-9-]*' | head -1 | cut -d' ' -f2)
 
-                if [ $? -eq 0 ]; then
-                    echo "✓ DMG is fully notarized and stapled!"
+                echo "✓ DMG submitted for notarization"
+                echo "  Submission ID: $SUBMISSION_ID"
+                echo ""
+                echo "⏳ Waiting for Apple to process (usually 5-30 minutes)..."
+                echo "   Will check status for up to 15 minutes..."
+                echo ""
+
+                # Poll for status with timeout (15 minutes = 900 seconds)
+                MAX_WAIT=900
+                WAIT_INTERVAL=30
+                ELAPSED=0
+
+                while [ $ELAPSED -lt $MAX_WAIT ]; do
+                    sleep $WAIT_INTERVAL
+                    ELAPSED=$((ELAPSED + WAIT_INTERVAL))
+
+                    # Check status
+                    STATUS_OUTPUT=$(xcrun notarytool info "$SUBMISSION_ID" \
+                        --keychain-profile "$KEYCHAIN_PROFILE" 2>&1)
+
+                    STATUS=$(echo "$STATUS_OUTPUT" | grep "status:" | awk '{print $2}')
+
+                    if [ "$STATUS" = "Accepted" ]; then
+                        echo "✓ Notarization successful! (${ELAPSED}s)"
+                        echo ""
+
+                        # Staple the ticket
+                        echo "📎 Stapling notarization ticket..."
+                        xcrun stapler staple "${DMG_NAME}"
+
+                        if [ $? -eq 0 ]; then
+                            echo "✓ DMG is fully notarized and stapled!"
+                            echo ""
+                            echo "🎉 Distribution-ready DMG created!"
+                        fi
+                        break
+                    elif [ "$STATUS" = "Invalid" ] || [ "$STATUS" = "Rejected" ]; then
+                        echo "❌ Notarization failed with status: $STATUS"
+                        echo ""
+                        echo "Get logs with:"
+                        echo "  xcrun notarytool log $SUBMISSION_ID --keychain-profile $KEYCHAIN_PROFILE"
+                        break
+                    else
+                        # Still in progress
+                        printf "."
+                    fi
+                done
+
+                if [ $ELAPSED -ge $MAX_WAIT ]; then
                     echo ""
-                    echo "🎉 Distribution-ready DMG created!"
+                    echo ""
+                    echo "⏱️  Notarization still in progress after 15 minutes"
+                    echo ""
+                    echo "The DMG is signed and uploaded. Apple's servers may be slow."
+                    echo "Check status later with:"
+                    echo "  xcrun notarytool info $SUBMISSION_ID --keychain-profile $KEYCHAIN_PROFILE"
+                    echo ""
+                    echo "Once accepted, staple the ticket with:"
+                    echo "  xcrun stapler staple \"${DMG_NAME}\""
                 fi
             else
-                echo "⚠ DMG notarization failed (but DMG is signed)"
+                echo "❌ Failed to submit for notarization"
+                echo "$SUBMIT_OUTPUT"
             fi
         fi
     fi
