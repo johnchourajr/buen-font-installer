@@ -35,6 +35,3 @@ all WOFFs/
 .docs/
 .scripts/
 .actrc
-
-# Local documentation (dev notes, not for public)
-docs/
