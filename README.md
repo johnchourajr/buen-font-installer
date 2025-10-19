@@ -1,5 +1,9 @@
 # Buen Font Installer
 
+[![Latest Release](https://img.shields.io/github/v/release/johnchourajr/buen-font-installer?label=version)](https://github.com/johnchourajr/buen-font-installer/releases/latest)
+[![Downloads](https://img.shields.io/github/downloads/johnchourajr/buen-font-installer/total)](https://github.com/johnchourajr/buen-font-installer/releases)
+[![macOS](https://img.shields.io/badge/macOS-13.0+-blue)](https://www.apple.com/macos/)
+
 ![looper 4](https://github.com/user-attachments/assets/b3bc9d6a-bfa3-4af0-9fba-b087b511a093)
 
 
