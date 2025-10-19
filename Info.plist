@@ -33,7 +33,7 @@
     <key>NSDownloadsFolderUsageDescription</key>
     <string>Buen Font Installer needs access to read font files you want to install or organize.</string>
     <key>SUFeedURL</key>
-    <string>https://raw.githubusercontent.com/johnchourajr/buen-fonts-app/main/appcast.xml</string>
+    <string>https://raw.githubusercontent.com/johnchourajr/buen-font-installer/main/appcast.xml</string>
     <key>SUEnableAutomaticChecks</key>
     <true/>
     <key>SUAutomaticallyUpdate</key>
