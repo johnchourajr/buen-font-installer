@@ -4,18 +4,18 @@
       "type": "lldb",
       "request": "launch",
       "args": [],
-      "cwd": "${workspaceFolder:buen-fontfiles}",
+      "cwd": "${workspaceFolder:buen-font-installer}",
       "name": "Debug BuenFontInstaller",
-      "program": "${workspaceFolder:buen-fontfiles}/.build/debug/BuenFontInstaller",
+      "program": "${workspaceFolder:buen-font-installer}/.build/debug/BuenFontInstaller",
       "preLaunchTask": "swift: Build Debug BuenFontInstaller"
     },
     {
       "type": "lldb",
       "request": "launch",
       "args": [],
-      "cwd": "${workspaceFolder:buen-fontfiles}",
+      "cwd": "${workspaceFolder:buen-font-installer}",
       "name": "Release BuenFontInstaller",
-      "program": "${workspaceFolder:buen-fontfiles}/.build/release/BuenFontInstaller",
+      "program": "${workspaceFolder:buen-font-installer}/.build/release/BuenFontInstaller",
       "preLaunchTask": "swift: Build Release BuenFontInstaller"
     }
   ]

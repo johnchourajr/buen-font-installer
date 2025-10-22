@@ -4,7 +4,7 @@ import PackageDescription
 let package = Package(
     name: "BuenFontInstaller",
     platforms: [
-        .macOS(.v13)
+        .macOS(.v11)
     ],
     products: [
         .executable(
@@ -12,13 +12,13 @@ let package = Package(
             targets: ["BuenFontInstaller"])
     ],
     dependencies: [
-        .package(url: "https://github.com/sparkle-project/Sparkle", from: "2.6.0")
+        // .package(url: "https://github.com/sparkle-project/Sparkle", from: "2.6.0")
     ],
     targets: [
         .executableTarget(
             name: "BuenFontInstaller",
             dependencies: [
-                .product(name: "Sparkle", package: "Sparkle")
+                // .product(name: "Sparkle", package: "Sparkle")
             ],
             path: "Sources",
             resources: [

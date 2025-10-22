@@ -6,7 +6,6 @@ echo "Building Buen Font Installer..."
 # Configuration
 APP_NAME="Buen Font Installer.app"
 APP_DIR="$APP_NAME/Contents"
-SPARKLE_FRAMEWORK=".build/artifacts/sparkle/Sparkle/Sparkle.xcframework/macos-arm64_x86_64/Sparkle.framework"
 
 # Check for code signing identity (optional for local builds)
 SIGNING_IDENTITY="${DEVELOPER_ID_CERTIFICATE:-}"
@@ -16,7 +15,13 @@ if [ -z "$SIGNING_IDENTITY" ]; then
     SIGNING_IDENTITY="-"
 fi
 
+# Clean build first
+echo "🧹 Cleaning build..."
+swift package clean
+rm -rf .build
+
 # Build the executable
+echo "🔨 Building Swift project..."
 swift build -c release
 
 if [ $? -ne 0 ]; then
@@ -25,57 +30,36 @@ if [ $? -ne 0 ]; then
 fi
 
 # Create app bundle structure
+echo "📦 Creating app bundle..."
 rm -rf "$APP_NAME"
 mkdir -p "$APP_DIR/MacOS"
 mkdir -p "$APP_DIR/Resources"
-mkdir -p "$APP_DIR/Frameworks"
 
 # Copy executable
 cp .build/release/BuenFontInstaller "$APP_DIR/MacOS/"
 
-# Set rpath for Sparkle framework
-echo "🔗 Setting rpath for Sparkle..."
-install_name_tool -add_rpath "@executable_path/../Frameworks" "$APP_DIR/MacOS/BuenFontInstaller" 2>/dev/null || true
-
 # Copy Info.plist
 cp Info.plist "$APP_DIR/"
 
-# Copy icon assets
-cp -r Sources/Resources/Assets.xcassets "$APP_DIR/Resources/"
+# Copy icon assets from build
+echo "🎨 Copying icon assets..."
+cp -r .build/arm64-apple-macosx/release/BuenFontInstaller_BuenFontInstaller.bundle/Assets.xcassets "$APP_DIR/Resources/"
 
-# Create icns file from the iconset
+# Create ICNS file from asset catalog
+echo "🎨 Creating ICNS file..."
 mkdir -p /tmp/AppIcon.iconset
-cp Sources/Resources/Assets.xcassets/AppIcon.appiconset/*.png /tmp/AppIcon.iconset/ 2>/dev/null
-iconutil -c icns /tmp/AppIcon.iconset -o "$APP_DIR/Resources/AppIcon.icns" 2>/dev/null
+cp "$APP_DIR/Resources/Assets.xcassets/AppIcon.appiconset/icon_512x512@2x.png" /tmp/AppIcon.iconset/icon_512x512@2x.png 2>/dev/null || true
+cp "$APP_DIR/Resources/Assets.xcassets/AppIcon.appiconset/icon_512x512.png" /tmp/AppIcon.iconset/icon_512x512.png 2>/dev/null || true
+cp "$APP_DIR/Resources/Assets.xcassets/AppIcon.appiconset/icon_256x256@2x.png" /tmp/AppIcon.iconset/icon_256x256@2x.png 2>/dev/null || true
+cp "$APP_DIR/Resources/Assets.xcassets/AppIcon.appiconset/icon_256x256.png" /tmp/AppIcon.iconset/icon_256x256.png 2>/dev/null || true
+cp "$APP_DIR/Resources/Assets.xcassets/AppIcon.appiconset/icon_128x128@2x.png" /tmp/AppIcon.iconset/icon_128x128@2x.png 2>/dev/null || true
+cp "$APP_DIR/Resources/Assets.xcassets/AppIcon.appiconset/icon_128x128.png" /tmp/AppIcon.iconset/icon_128x128.png 2>/dev/null || true
+cp "$APP_DIR/Resources/Assets.xcassets/AppIcon.appiconset/icon_32x32@2x.png" /tmp/AppIcon.iconset/icon_32x32@2x.png 2>/dev/null || true
+cp "$APP_DIR/Resources/Assets.xcassets/AppIcon.appiconset/icon_32x32.png" /tmp/AppIcon.iconset/icon_32x32.png 2>/dev/null || true
+cp "$APP_DIR/Resources/Assets.xcassets/AppIcon.appiconset/icon_16x16@2x.png" /tmp/AppIcon.iconset/icon_16x16@2x.png 2>/dev/null || true
+cp "$APP_DIR/Resources/Assets.xcassets/AppIcon.appiconset/icon_16x16.png" /tmp/AppIcon.iconset/icon_16x16.png 2>/dev/null || true
+iconutil -c icns /tmp/AppIcon.iconset -o "$APP_DIR/Resources/AppIcon.icns" 2>/dev/null || true
 rm -rf /tmp/AppIcon.iconset
-
-# Copy Sparkle framework if it exists
-if [ -d "$SPARKLE_FRAMEWORK" ]; then
-    echo "📦 Embedding Sparkle framework..."
-    cp -R "$SPARKLE_FRAMEWORK" "$APP_DIR/Frameworks/"
-
-    # Remove extended attributes (from Dropbox, etc)
-    echo "🧹 Cleaning extended attributes..."
-    xattr -cr "$APP_DIR/Frameworks/Sparkle.framework"
-
-    # Sign the framework
-    echo "🔐 Signing Sparkle framework..."
-    codesign --force --sign "$SIGNING_IDENTITY" \
-        --timestamp \
-        --options runtime \
-        "$APP_DIR/Frameworks/Sparkle.framework/Versions/B/Autoupdate" 2>/dev/null
-    codesign --force --sign "$SIGNING_IDENTITY" \
-        --timestamp \
-        --options runtime \
-        "$APP_DIR/Frameworks/Sparkle.framework/Versions/B/Updater.app" 2>/dev/null
-    codesign --force --sign "$SIGNING_IDENTITY" \
-        --timestamp \
-        --options runtime \
-        "$APP_DIR/Frameworks/Sparkle.framework" 2>/dev/null
-else
-    echo "⚠ Warning: Sparkle framework not found at $SPARKLE_FRAMEWORK"
-    echo "   Run 'swift build' first to download dependencies"
-fi
 
 # Code sign the main executable
 echo "🔐 Signing app executable..."
@@ -107,6 +91,10 @@ if [ $? -eq 0 ]; then
 else
     echo "⚠ Warning: Code signing failed"
 fi
+
+# Clear icon cache and restart Dock
+echo "🔄 Refreshing icon cache..."
+killall Dock
 
 echo "✓ App bundle created: $APP_NAME"
 echo ""

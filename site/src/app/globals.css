@@ -1,0 +1,74 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* @font-face {
+  font-family: "GoshaSans-Ultrabold";
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url("../fonts/PPGoshaSans-Ultrabold.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "GoshaSans-Regular";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../fonts/PPGoshaSans-Regular.woff2") format("woff2");
+} */
+
+@font-face {
+  font-family: "NeueBit-Bold";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("../fonts/PPNeueBit-Bold.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "NeueBit-Regular";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../fonts/PPNeueBit-Regular.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "OTNeueMontreal-BookSemiSqueezed";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../fonts/OTNeueMontreal-BookSemiSqueezed.woff2") format("woff2");
+}
+
+:root {
+  /* --color-primary: 0, 255, 10; */
+  --color-primary: 0, 98, 255;
+  --color-primary-hex: #0062ff;
+  --color-secondary: 0, 0, 0;
+  --color-secondary-hex: #000000;
+}
+
+body {
+  color: rgb(var(--color-primary));
+  background: rgb(var(--color-secondary));
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .subgrid {
+    display: grid;
+    grid-template-columns: subgrid;
+  }
+}
+
+.glowing-text {
+  /* @apply text-6xl font-bold bg-clip-text; */
+  backdrop-filter: url(#glow) blur(10px);
+}
