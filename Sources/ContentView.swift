@@ -181,10 +181,15 @@ struct ContentView: View {
     Task {
       var allFontFiles: [URL] = []
       var sourceDirectory: URL?
+      var scopedURLs: [URL] = []
 
       // Collect all font files from providers
       for provider in providers {
         if let url = await loadURL(from: provider) {
+          // Gain access to security-scoped resource (needed in sandboxed builds)
+          if url.startAccessingSecurityScopedResource() {
+            scopedURLs.append(url)
+          }
           if url.hasDirectoryPath {
             sourceDirectory = url
             let fonts = collectFontFiles(from: url)
@@ -196,6 +201,10 @@ struct ContentView: View {
             }
           }
         }
+      }
+
+      defer {
+        scopedURLs.forEach { $0.stopAccessingSecurityScopedResource() }
       }
 
       guard !allFontFiles.isEmpty else {
@@ -294,6 +303,7 @@ struct ContentView: View {
         installed += 1
       } catch {
         failed += 1
+        print("Failed to copy \(fontURL.lastPathComponent): \(error)")
       }
     }
 

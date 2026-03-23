@@ -66,7 +66,7 @@ echo "🔐 Signing app executable..."
 codesign --force --sign "$SIGNING_IDENTITY" \
     --timestamp \
     --options runtime \
-    --entitlements BuenFontInstaller.entitlements \
+    --entitlements BuenFontInstaller-direct.entitlements \
     "$APP_DIR/MacOS/BuenFontInstaller"
 
 # Code sign the entire app bundle
@@ -74,7 +74,7 @@ echo "🔐 Signing app bundle..."
 codesign --force --deep --sign "$SIGNING_IDENTITY" \
     --timestamp \
     --options runtime \
-    --entitlements BuenFontInstaller.entitlements \
+    --entitlements BuenFontInstaller-direct.entitlements \
     "$APP_NAME"
 
 if [ $? -eq 0 ]; then
