@@ -1,25 +1,6 @@
 import AppKit
 import SwiftUI
 
-enum TabSelection: CaseIterable {
-    case main
-    case settings
-
-    var title: String {
-        switch self {
-        case .main: return "MAIN"
-        case .settings: return "SETTINGS"
-        }
-    }
-
-    var icon: String {
-        switch self {
-        case .main: return "square.and.arrow.down"
-        case .settings: return "gear"
-        }
-    }
-}
-
 @main
 struct BuenFontInstallerApp: App {
     @StateObject private var settings = AppSettings()
@@ -30,37 +11,12 @@ struct BuenFontInstallerApp: App {
         WindowGroup {
             ContentView(settings: settings)
                 .background(WindowAccessor())
-                .navigationTitle(Text("Buen Font Installer"))
                 .toolbar {
                     ToolbarItem(placement: .principal) {
-                        HStack(spacing: 8) {
-                            ForEach(TabSelection.allCases, id: \.self) { tab in
-                                let isActive = (tab == .settings) == settings.showingSettings
-                                Button(action: {
-                                    withAnimation(.easeInOut(duration: 0.3)) {
-                                        settings.showingSettings = (tab == .settings)
-                                    }
-                                }) {
-                                    Image(systemName: tab.icon)
-                                        .font(.system(size: 14, weight: .medium))
-                                        .foregroundColor(isActive ? .primary : .secondary)
-                                        .padding(10)
-                                        .background(
-                                            Circle()
-                                                .fill(
-                                                    isActive
-                                                        ? Color.primary.opacity(0.15) : Color.clear)
-                                        )
-                                }
-                                .buttonStyle(.plain)
-
-                                if tab != TabSelection.allCases.last {
-                                    Divider()
-                                        .frame(height: 12)
-                                        .padding(.horizontal, 8)
-                                }
-                            }
-                        }
+                        Text("BUEN FONT INSTALLER")
+                            .font(.system(size: 9, weight: .medium, design: .monospaced))
+                            .foregroundColor(.secondary)
+                            .tracking(1.2)
                     }
                 }
                 .toolbarBackground(.hidden, for: .windowToolbar)

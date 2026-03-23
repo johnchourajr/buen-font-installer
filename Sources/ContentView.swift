@@ -123,7 +123,9 @@ struct ContentView: View {
 
         // Bottom bezel space
         HStack {
-          // Settings button in bottom left corner
+          Spacer()
+
+          // Settings button in bottom right corner
           Button(action: {
             withAnimation(.easeInOut(duration: 0.3)) {
               settings.showingSettings = true
@@ -135,8 +137,6 @@ struct ContentView: View {
           }
           .buttonStyle(.plain)
           .help("Settings")
-
-          Spacer()
         }
         .frame(height: 20)
         .padding(.all, 8)
