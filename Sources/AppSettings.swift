@@ -14,6 +14,8 @@ class AppSettings: ObservableObject {
     }
   }
 
+  @Published var showingSettings: Bool = false
+
   @Published var showInDock: Bool {
     didSet {
       UserDefaults.standard.set(showInDock, forKey: "showInDock")

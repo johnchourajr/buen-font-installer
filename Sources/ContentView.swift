@@ -7,12 +7,11 @@ struct ContentView: View {
   @State private var isDropTargeted = false
   @State private var statusMessage = ""
   @State private var isProcessing = false
-  @State private var showingSettings = false
 
   var body: some View {
     ZStack {
       // Main installer view
-      if !showingSettings {
+      if !settings.showingSettings {
         mainView
           .frame(minWidth: 400, minHeight: 400)
           .zIndex(2)
@@ -24,7 +23,7 @@ struct ContentView: View {
       }
 
       // Darkening overlay when settings are shown
-      if showingSettings {
+      if settings.showingSettings {
         Color.black.opacity(0.3)
           .ignoresSafeArea()
           .transition(.opacity)
@@ -41,12 +40,12 @@ struct ContentView: View {
       }
 
       // Settings view
-      if showingSettings {
+      if settings.showingSettings {
         SettingsView(
           settings: settings,
           onBack: {
             withAnimation(.easeInOut(duration: 0.3)) {
-              showingSettings = false
+              settings.showingSettings = false
             }
           }
         )
@@ -60,11 +59,11 @@ struct ContentView: View {
     }
     .frame(minWidth: 400, minHeight: 400)
     .background(.ultraThinMaterial)
-    .animation(.easeInOut(duration: 0.3), value: showingSettings)
+    .animation(.easeInOut(duration: 0.3), value: settings.showingSettings)
     .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("ShowSettings"))) {
       _ in
       withAnimation(.easeInOut(duration: 0.3)) {
-        showingSettings = true
+        settings.showingSettings = true
       }
     }
   }
@@ -127,7 +126,7 @@ struct ContentView: View {
           // Settings button in bottom left corner
           Button(action: {
             withAnimation(.easeInOut(duration: 0.3)) {
-              showingSettings = true
+              settings.showingSettings = true
             }
           }) {
             Image(systemName: "gear")

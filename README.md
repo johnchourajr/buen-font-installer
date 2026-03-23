@@ -86,7 +86,7 @@ Installs `.ttf` and `.otf` files. Organizes `.ttf`, `.otf`, `.woff2`, and `.woff
 
 ## Requirements
 
-macOS 13.0 or later
+macOS 14.0 or later
 
 ## Support
 
@@ -246,7 +246,7 @@ See `APPCAST_UPDATE_GUIDE.md` for details on maintaining the appcast file.
 4. Rebuild with `./build-app.sh`
 
 **Build Requirements**
-- macOS 13.0 or later
+- macOS 14.0 or later
 - Xcode 15.0 or later
 
 ## License
