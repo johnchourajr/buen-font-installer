@@ -41,9 +41,9 @@ class AppSettings: ObservableObject {
   }
 
   func updateDockVisibility() {
-    // Delay dock visibility update to ensure NSApp is ready
-    DispatchQueue.main.async {
-      if self.showInDock {
+    let showInDock = self.showInDock
+    Task { @MainActor in
+      if showInDock {
         NSApp.setActivationPolicy(.regular)
       } else {
         NSApp.setActivationPolicy(.accessory)
