@@ -1,10 +1,7 @@
 #!/bin/bash
-
-# Build app for Mac App Store distribution (app bundle only, no .pkg)
 set -e
 
-echo "🍎 Building for Mac App Store (App Bundle Only)..."
-echo "=================================================="
+echo "🍎 Building for Mac App Store..."
 echo ""
 
 # Load secrets
@@ -12,141 +9,86 @@ if [ -f ".env.secrets" ]; then
     source .env.secrets
 fi
 
-# Check for Mac App Store certificate
-MAC_APP_STORE_CERT=$(security find-identity -v -p codesigning | grep "3rd Party Mac Developer Application" | head -1 | grep -o '"[^"]*"' | tr -d '"')
-
-if [ -z "$MAC_APP_STORE_CERT" ]; then
-    echo "❌ No Mac App Store certificate found!"
+# Check for Mac App Store application certificate
+APP_CERT=$(security find-identity -v -p codesigning | grep "3rd Party Mac Developer Application" | head -1 | grep -o '"[^"]*"' | tr -d '"')
+if [ -z "$APP_CERT" ]; then
+    echo "❌ No '3rd Party Mac Developer Application' certificate found"
     echo ""
-    echo "To fix this:"
-    echo "1. Go to https://developer.apple.com/account/resources/certificates"
-    echo "2. Create a 'Mac App Store' certificate"
-    echo "3. Install it in your keychain"
-    echo ""
+    echo "To fix:"
+    echo "  1. Open Xcode → Settings → Accounts → Manage Certificates"
+    echo "  2. Click + → Mac App Store Application"
+    echo "  Or create one at: https://developer.apple.com/account/resources/certificates"
     exit 1
 fi
+echo "✓ App certificate: $APP_CERT"
 
-echo "✓ Found Mac App Store certificate: $MAC_APP_STORE_CERT"
+# Check for Mac App Store installer certificate (needed for .pkg)
+PKG_CERT=$(security find-identity -v | grep "3rd Party Mac Developer Installer" | head -1 | grep -o '"[^"]*"' | tr -d '"')
+if [ -z "$PKG_CERT" ]; then
+    echo "⚠ No '3rd Party Mac Developer Installer' certificate found — .pkg step will be skipped"
+else
+    echo "✓ Installer certificate: $PKG_CERT"
+fi
+
+# Build
 echo ""
-
-# Set signing identity
-export SIGNING_IDENTITY="$MAC_APP_STORE_CERT"
-
-# Build the app (reuse existing build script)
-echo "📦 Building app..."
+echo "🔨 Building (release)..."
 swift build -c release
 
-if [ $? -ne 0 ]; then
-    echo "❌ Build failed!"
-    exit 1
-fi
-
-# Create app bundle structure
+# Variables
 APP_NAME="Buen Font Installer.app"
 APP_DIR="$APP_NAME/Contents"
-SPARKLE_FRAMEWORK=".build/artifacts/sparkle/Sparkle/Sparkle.xcframework/macos-arm64_x86_64/Sparkle.framework"
+PKG_NAME="Buen Font Installer.pkg"
 
-# Create app bundle structure
+# Assemble app bundle
+echo ""
+echo "📦 Assembling app bundle..."
 rm -rf "$APP_NAME"
 mkdir -p "$APP_DIR/MacOS"
 mkdir -p "$APP_DIR/Resources"
-mkdir -p "$APP_DIR/Frameworks"
 
-# Copy executable
 cp .build/release/BuenFontInstaller "$APP_DIR/MacOS/"
-
-# Set rpath for Sparkle framework
-echo "🔗 Setting rpath for Sparkle..."
-install_name_tool -add_rpath "@executable_path/../Frameworks" "$APP_DIR/MacOS/BuenFontInstaller" 2>/dev/null || true
-
-# Copy Info.plist
 cp Info.plist "$APP_DIR/"
 
-# Copy icon assets
-cp -r Sources/Resources/Assets.xcassets "$APP_DIR/Resources/"
-
-# Create icns file from the iconset
+# Build icon
+echo "🎨 Building icon..."
 mkdir -p /tmp/AppIcon.iconset
-cp Sources/Resources/Assets.xcassets/AppIcon.appiconset/*.png /tmp/AppIcon.iconset/ 2>/dev/null
-iconutil -c icns /tmp/AppIcon.iconset -o "$APP_DIR/Resources/AppIcon.icns" 2>/dev/null
+for size in 16 32 128 256 512; do
+    cp "Sources/Resources/Assets.xcassets/AppIcon.appiconset/icon_${size}x${size}.png" \
+       "/tmp/AppIcon.iconset/icon_${size}x${size}.png" 2>/dev/null || true
+    cp "Sources/Resources/Assets.xcassets/AppIcon.appiconset/icon_${size}x${size}@2x.png" \
+       "/tmp/AppIcon.iconset/icon_${size}x${size}@2x.png" 2>/dev/null || true
+done
+iconutil -c icns /tmp/AppIcon.iconset -o "$APP_DIR/Resources/AppIcon.icns"
 rm -rf /tmp/AppIcon.iconset
 
-# Copy Sparkle framework if it exists
-if [ -d "$SPARKLE_FRAMEWORK" ]; then
-    echo "📦 Embedding Sparkle framework..."
-    cp -R "$SPARKLE_FRAMEWORK" "$APP_DIR/Frameworks/"
-
-    # Remove extended attributes
-    echo "🧹 Cleaning extended attributes..."
-    xattr -cr "$APP_DIR/Frameworks/Sparkle.framework"
-
-    # Sign the framework
-    echo "🔐 Signing Sparkle framework..."
-    codesign --force --sign "$SIGNING_IDENTITY" \
-        --timestamp \
-        --options runtime \
-        "$APP_DIR/Frameworks/Sparkle.framework/Versions/B/Autoupdate" 2>/dev/null
-    codesign --force --sign "$SIGNING_IDENTITY" \
-        --timestamp \
-        --options runtime \
-        "$APP_DIR/Frameworks/Sparkle.framework/Versions/B/Updater.app" 2>/dev/null
-    codesign --force --sign "$SIGNING_IDENTITY" \
-        --timestamp \
-        --options runtime \
-        "$APP_DIR/Frameworks/Sparkle.framework" 2>/dev/null
-fi
-
-# Code sign the main executable
-echo "🔐 Signing app executable..."
-codesign --force --sign "$SIGNING_IDENTITY" \
-    --timestamp \
-    --options runtime \
-    --entitlements BuenFontInstaller.entitlements \
-    "$APP_DIR/MacOS/BuenFontInstaller"
-
-# Code sign the entire app bundle
+# Sign app bundle
+# Note: --options runtime is for Developer ID/notarization — not used for App Store
+echo ""
 echo "🔐 Signing app bundle..."
-codesign --force --deep --sign "$SIGNING_IDENTITY" \
+codesign --force --deep --sign "$APP_CERT" \
     --timestamp \
-    --options runtime \
     --entitlements BuenFontInstaller.entitlements \
     "$APP_NAME"
 
-if [ $? -eq 0 ]; then
-    echo "✓ App signed successfully for Mac App Store"
-    
-    # Verify the signature
-    codesign --verify --verbose "$APP_NAME"
-else
-    echo "❌ Code signing failed"
-    exit 1
-fi
+codesign --verify --verbose "$APP_NAME"
+echo "✓ App signed"
 
-echo ""
-echo "✓ App bundle created: $APP_NAME"
-echo ""
-
-# Create a zip file for upload (alternative to .pkg)
-echo "📦 Creating zip file for upload..."
-ZIP_NAME="Buen Font Installer.zip"
-rm -f "$ZIP_NAME"
-ditto -c -k --keepParent "$APP_NAME" "$ZIP_NAME"
-
-if [ $? -eq 0 ]; then
-    echo "✓ Zip file created: $ZIP_NAME"
+# Create .pkg for App Store submission
+if [ -n "$PKG_CERT" ]; then
     echo ""
-    echo "Next steps:"
-    echo "1. Download Transporter from Mac App Store"
-    echo "2. Drag '$ZIP_NAME' into Transporter"
-    echo "3. Click 'Deliver'"
+    echo "📦 Creating installer package..."
+    rm -f "$PKG_NAME"
+    productbuild \
+        --component "$APP_NAME" /Applications \
+        --sign "$PKG_CERT" \
+        "$PKG_NAME"
+    echo "✓ Package created: $PKG_NAME"
     echo ""
-    echo "Or upload via command line:"
-    echo "xcrun altool --upload-package \"$ZIP_NAME\" \\"
-    echo "  --type macos \\"
-    echo "  --username \"your@email.com\" \\"
-    echo "  --password \"app-specific-password\" \\"
-    echo "  --bundle-id \"dev.muybuen.buen-font-installer\""
+    echo "Upload with asc:"
+    echo "  asc builds upload --app YOUR_APP_ID --pkg \"$PKG_NAME\""
 else
-    echo "❌ Zip creation failed"
-    exit 1
+    echo ""
+    echo "⚠ Skipping .pkg — add a '3rd Party Mac Developer Installer' certificate to enable"
+    echo "  Then: asc builds upload --app YOUR_APP_ID --pkg \"$PKG_NAME\""
 fi
