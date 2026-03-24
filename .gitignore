@@ -35,3 +35,4 @@ all WOFFs/
 .docs/
 .scripts/
 .actrc
+deploy.sh

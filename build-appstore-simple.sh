@@ -4,13 +4,8 @@ set -e
 echo "🍎 Building for Mac App Store..."
 echo ""
 
-# Load secrets
-if [ -f ".env.secrets" ]; then
-    source .env.secrets
-fi
-
 # Check for Mac App Store application certificate
-APP_CERT=$(security find-identity -v -p codesigning | grep "3rd Party Mac Developer Application" | head -1 | grep -o '"[^"]*"' | tr -d '"')
+APP_CERT=$(security find-identity -v -p codesigning | grep -E "Apple Distribution|3rd Party Mac Developer Application" | head -1 | grep -o '"[^"]*"' | tr -d '"')
 if [ -z "$APP_CERT" ]; then
     echo "❌ No '3rd Party Mac Developer Application' certificate found"
     echo ""
@@ -23,7 +18,7 @@ fi
 echo "✓ App certificate: $APP_CERT"
 
 # Check for Mac App Store installer certificate (needed for .pkg)
-PKG_CERT=$(security find-identity -v | grep "3rd Party Mac Developer Installer" | head -1 | grep -o '"[^"]*"' | tr -d '"')
+PKG_CERT=$(security find-identity -v | grep -E "Mac Installer Distribution|3rd Party Mac Developer Installer" | head -1 | grep -o '"[^"]*"' | tr -d '"')
 if [ -z "$PKG_CERT" ]; then
     echo "⚠ No '3rd Party Mac Developer Installer' certificate found — .pkg step will be skipped"
 else
@@ -49,6 +44,17 @@ mkdir -p "$APP_DIR/Resources"
 
 cp .build/release/BuenFontInstaller "$APP_DIR/MacOS/"
 cp Info.plist "$APP_DIR/"
+
+# Compile asset catalog (required by App Store — produces Assets.car)
+echo "🎨 Compiling asset catalog..."
+actool \
+    --compile "$APP_DIR/Resources" \
+    --app-icon AppIcon \
+    --output-partial-info-plist /tmp/assetcatalog_info.plist \
+    --platform macosx \
+    --minimum-deployment-target 14.0 \
+    --target-device mac \
+    Sources/Resources/Assets.xcassets 2>/dev/null || true
 
 # Build icon
 echo "🎨 Building icon..."
