@@ -282,11 +282,27 @@ struct ContentView: View {
     var installed = 0
     var skipped = 0
     var failed = 0
+    var permissionDenied = false
 
     // Only install .ttf and .otf files
     let installableFonts = fontFiles.filter { url in
       let ext = url.pathExtension.lowercased()
       return ext == "ttf" || ext == "otf"
+    }
+
+    let hasScopedAccess = fontsDirectory.startAccessingSecurityScopedResource()
+    defer {
+      if hasScopedAccess {
+        fontsDirectory.stopAccessingSecurityScopedResource()
+      }
+    }
+
+    if !fileManager.fileExists(atPath: fontsDirectory.path) {
+      do {
+        try fileManager.createDirectory(at: fontsDirectory, withIntermediateDirectories: true)
+      } catch {
+        permissionDenied = true
+      }
     }
 
     for fontURL in installableFonts {
@@ -303,6 +319,12 @@ struct ContentView: View {
         installed += 1
       } catch {
         failed += 1
+        if !hasScopedAccess {
+          permissionDenied = true
+        }
+        if let cocoaError = error as? CocoaError, cocoaError.code == .fileWriteNoPermission {
+          permissionDenied = true
+        }
         print("Failed to copy \(fontURL.lastPathComponent): \(error)")
       }
     }
@@ -315,6 +337,10 @@ struct ContentView: View {
       let webFonts = fontFiles.count - installableFonts.count
       if webFonts > 0 {
         message += "\nSkipped \(webFonts) web font(s) (.woff/.woff2)"
+      }
+
+      if permissionDenied {
+        message += "\nPermission needed: Choose install folder in Settings."
       }
 
       isProcessing = false

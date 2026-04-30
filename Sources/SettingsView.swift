@@ -126,7 +126,7 @@ struct SettingsView: View {
     panel.message = "Choose where fonts should be installed"
 
     if panel.runModal() == .OK, let url = panel.url {
-      settings.installLocation = url
+      settings.setInstallLocation(url, persistSecurityScopedAccess: true)
     }
   }
 }

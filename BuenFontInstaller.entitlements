@@ -9,18 +9,6 @@
     <!-- User Selected File Access (for font installation) -->
     <key>com.apple.security.files.user-selected.read-write</key>
     <true/>
-
-    <!-- Access to user's Fonts folder -->
-    <key>com.apple.security.files.user-selected.read-only</key>
-    <true/>
-
-    <!-- Hardened Runtime -->
-    <key>com.apple.security.cs.allow-jit</key>
-    <false/>
-    <key>com.apple.security.cs.allow-unsigned-executable-memory</key>
-    <false/>
-    <key>com.apple.security.cs.disable-library-validation</key>
-    <false/>
 </dict>
 </plist>
 

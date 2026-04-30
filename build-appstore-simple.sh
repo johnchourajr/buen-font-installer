@@ -34,6 +34,54 @@ swift build -c release
 APP_NAME="Buen Font Installer.app"
 APP_DIR="$APP_NAME/Contents"
 PKG_NAME="Buen Font Installer.pkg"
+BUNDLE_ID=$(/usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" Info.plist 2>/dev/null || echo "dev.muybuen.buen-font-installer")
+
+find_provisioning_profile() {
+    local bundle_id="$1"
+    local profiles_dir="$HOME/Library/MobileDevice/Provisioning Profiles"
+
+    if [ ! -d "$profiles_dir" ]; then
+        return 1
+    fi
+
+    # Pick the newest profile whose entitlements match our bundle id and includes a team identifier.
+    # This is a best-effort heuristic that works well when Xcode has already downloaded profiles.
+    local best_profile=""
+    local best_mtime=0
+
+    while IFS= read -r -d '' profile; do
+        local decoded
+        decoded="$(security cms -D -i "$profile" 2>/dev/null || true)"
+        if [ -z "$decoded" ]; then
+            continue
+        fi
+
+        # Match either application-identifier (TEAMID.bundle) or the explicit bundle-id in Entitlements.
+        if ! echo "$decoded" | grep -q "$bundle_id"; then
+            continue
+        fi
+
+        # Prefer profiles that look like Mac App Store / sandboxed distribution profiles (not developer-id).
+        if ! echo "$decoded" | grep -q "ProvisionedDevices"; then
+            # ProvisionedDevices is usually absent for App Store distribution, so this is OK.
+            :
+        fi
+
+        local mtime
+        mtime=$(stat -f "%m" "$profile" 2>/dev/null || echo 0)
+        if [ "$mtime" -gt "$best_mtime" ]; then
+            best_mtime="$mtime"
+            best_profile="$profile"
+        fi
+    done < <(find "$profiles_dir" -name "*.provisionprofile" -print0)
+
+    if [ -n "$best_profile" ]; then
+        echo "$best_profile"
+        return 0
+    fi
+
+    return 1
+}
 
 # Assemble app bundle
 echo ""
@@ -44,6 +92,20 @@ mkdir -p "$APP_DIR/Resources"
 
 cp .build/release/BuenFontInstaller "$APP_DIR/MacOS/"
 cp Info.plist "$APP_DIR/"
+
+# Embed provisioning profile (required for TestFlight eligibility)
+echo ""
+echo "🪪 Embedding provisioning profile (for TestFlight)..."
+PROFILE_PATH="$(find_provisioning_profile "$BUNDLE_ID" || true)"
+if [ -n "$PROFILE_PATH" ]; then
+    cp "$PROFILE_PATH" "$APP_DIR/embedded.provisionprofile"
+    echo "✓ Embedded: $(basename "$PROFILE_PATH")"
+else
+    echo "⚠ No matching provisioning profile found in:"
+    echo "  $HOME/Library/MobileDevice/Provisioning Profiles"
+    echo "  Open Xcode → Settings → Accounts → Download Manual Profiles"
+    echo "  Then re-run this script."
+fi
 
 # Compile asset catalog (required by App Store — produces Assets.car)
 echo "🎨 Compiling asset catalog..."

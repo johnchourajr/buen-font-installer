@@ -1,0 +1,5 @@
+{
+  "description": "Buen Font Installer is the fastest way to install fonts on your Mac. Just drag and drop font files or folders anywhere onto the app window — it handles the rest.\n\nFeatures:\n• Drag and drop .ttf and .otf fonts directly into ~/Library/Fonts\n• Drop entire folders to batch install all fonts at once\n• Organize mode: sort fonts into TTF, OTF, WOFF, and WOFF2 subfolders without installing\n• Skips fonts that are already installed\n• Lives in your menu bar for quick access\n• Works entirely offline — no internet connection required",
+  "keywords": "fonts,font installer,typography,typeface,install fonts,font manager,drag drop,otf,ttf",
+  "supportUrl": "https://john.design/contact"
+}

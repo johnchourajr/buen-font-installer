@@ -7,10 +7,8 @@ echo "🍎 Building for Mac App Store..."
 echo "================================"
 echo ""
 
-# Load secrets
-if [ -f ".env.secrets" ]; then
-    source .env.secrets
-fi
+# Note: do not `source .env.secrets` here. Keep build scripts deterministic and
+# avoid executing arbitrary shell in a secrets file.
 
 # Check for Mac App Store certificate
 MAC_APP_STORE_CERT=$(security find-identity -v -p codesigning | grep "3rd Party Mac Developer Application" | head -1 | grep -o '"[^"]*"' | tr -d '"')
@@ -45,6 +43,45 @@ fi
 APP_NAME="Buen Font Installer.app"
 APP_DIR="$APP_NAME/Contents"
 SPARKLE_FRAMEWORK=".build/artifacts/sparkle/Sparkle/Sparkle.xcframework/macos-arm64_x86_64/Sparkle.framework"
+BUNDLE_ID=$(/usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" Info.plist 2>/dev/null || echo "dev.muybuen.buen-font-installer")
+
+find_provisioning_profile() {
+    local bundle_id="$1"
+    local profiles_dir="$HOME/Library/MobileDevice/Provisioning Profiles"
+
+    if [ ! -d "$profiles_dir" ]; then
+        return 1
+    fi
+
+    local best_profile=""
+    local best_mtime=0
+
+    while IFS= read -r -d '' profile; do
+        local decoded
+        decoded="$(security cms -D -i "$profile" 2>/dev/null || true)"
+        if [ -z "$decoded" ]; then
+            continue
+        fi
+
+        if ! echo "$decoded" | grep -q "$bundle_id"; then
+            continue
+        fi
+
+        local mtime
+        mtime=$(stat -f "%m" "$profile" 2>/dev/null || echo 0)
+        if [ "$mtime" -gt "$best_mtime" ]; then
+            best_mtime="$mtime"
+            best_profile="$profile"
+        fi
+    done < <(find "$profiles_dir" -name "*.provisionprofile" -print0)
+
+    if [ -n "$best_profile" ]; then
+        echo "$best_profile"
+        return 0
+    fi
+
+    return 1
+}
 
 # Create app bundle structure
 rm -rf "$APP_NAME"
@@ -61,6 +98,19 @@ install_name_tool -add_rpath "@executable_path/../Frameworks" "$APP_DIR/MacOS/Bu
 
 # Copy Info.plist
 cp Info.plist "$APP_DIR/"
+
+# Embed provisioning profile (required for TestFlight eligibility)
+echo "🪪 Embedding provisioning profile (for TestFlight)..."
+PROFILE_PATH="$(find_provisioning_profile "$BUNDLE_ID" || true)"
+if [ -n "$PROFILE_PATH" ]; then
+    cp "$PROFILE_PATH" "$APP_DIR/embedded.provisionprofile"
+    echo "✓ Embedded: $(basename "$PROFILE_PATH")"
+else
+    echo "⚠ No matching provisioning profile found in:"
+    echo "  $HOME/Library/MobileDevice/Provisioning Profiles"
+    echo "  Open Xcode → Settings → Accounts → Download Manual Profiles"
+    echo "  Then re-run this script."
+fi
 
 # Copy icon assets
 cp -r Sources/Resources/Assets.xcassets "$APP_DIR/Resources/"
